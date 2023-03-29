@@ -109,7 +109,7 @@ void duplicateOddValues(list *l)
     }
 }
 
-void removeDuplicateCouples(list *l)
+void removeDuplicatedCouples(list *l)
 {
 }
 
