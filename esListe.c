@@ -111,6 +111,25 @@ void duplicateOddValues(list *l)
 
 void removeDuplicatedCouples(list *l)
 {
+    if (l != NULL && l->next != NULL)
+    {
+        if (l->value % 2 == 1 && l->value == l->next->value)
+        {
+            list *temp = l->next;
+            l->next = l->next->next;
+            free(temp);
+        }
+        removeDuplicatedCouples(l->next);
+    }
+}
+
+void freeList(list *l)
+{
+    if (l != NULL)
+    {
+        freeList(l->next);
+        free(l);
+    }
 }
 
 int main()
@@ -124,12 +143,18 @@ int main()
     printf("Es 1: \n");
     doubleOddValues(l);
     printList(l);
+    freeList(l);
+
+    printf("\nList: \n");
+    l = newList();
+    printList(l);
 
     printf("Es 2: \n");
     duplicateOddValues(l);
     printList(l);
 
     printf("Es 3: \n");
+    removeDuplicatedCouples(l);
     printList(l);
 
     return 0;
