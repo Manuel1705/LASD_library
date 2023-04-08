@@ -48,6 +48,40 @@ void printList(DLlist *l)
         printf("NULL\n\n");
 }
 
+DLlist *sortDoubleLinkedList(DLlist *l)
+{
+    if (l != NULL)
+    {
+        if (l->prev != NULL)
+        {
+            if (l->value < l->prev->value)
+            {
+                printf("Scambio %d %d\n", l->prev->value, l->value);
+
+                DLlist *tmp;
+                tmp = l->next;
+
+                l->next = l->prev;
+                l->prev = l->prev->prev;
+
+                l->next->next = tmp;
+                l->next->prev = l;
+
+                if (tmp != NULL)
+                    tmp->prev = l->next;
+
+                printList(l);
+                sortDoubleLinkedList(l);
+            }
+        }
+        sortDoubleLinkedList(l->next);
+
+        // head retrieval
+        while (l->prev != NULL)
+            l = l->prev;
+    }
+    return l;
+}
 int main()
 {
     int dim;
@@ -55,6 +89,8 @@ int main()
     scanf("%d", &dim);
 
     DLlist *l = newDoubleLinkedList(NULL, l, dim);
+    printList(l);
+    l = sortDoubleLinkedList(l);
 
     printList(l);
 }
