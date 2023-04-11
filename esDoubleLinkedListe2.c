@@ -69,8 +69,6 @@ DLlist *sortDoubleLinkedList(DLlist *l)
 
                 if (tmp != NULL)
                     tmp->prev = l->next;
-
-                printList(l);
                 sortDoubleLinkedList(l);
             }
         }
@@ -93,4 +91,5 @@ int main()
     l = sortDoubleLinkedList(l);
 
     printList(l);
+    system("PAUSE");
 }
