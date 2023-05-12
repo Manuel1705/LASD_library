@@ -2,133 +2,146 @@
 #include <stdlib.h>
 #include <time.h>
 
-typedef struct nodo
-{
-    int value;
-    struct arco *adj;
-} nodo;
-
-typedef struct nodoList
-{
-    nodo *nodo;
-    struct nodoList *next;
-} nodoList;
-
-typedef struct grafo
-{
-    int nNodi;
-    nodoList *nodi;
-} grafo;
-
-typedef struct arco
+typedef struct edge
 {
     int weight;
-    nodo *pointer;
-    struct arco *next;
-} arco;
+    int node;
+    struct edge *next;
+} edge;
 
-// restituisce un nuovo nodo
-nodo *newNodo(int value)
+typedef struct graph
 {
-    nodo *tmp = (nodo *)malloc(sizeof(nodo));
-    tmp->value = value;
-    return tmp;
+    int size;
+    edge **adj;
+} graph;
+void resetIntVector(int *v, int size)
+{
+    for (int i = 0; i < size; i++)
+        v[i] = 0;
 }
-// aggiunge un arco da nodo1 a nodo2
-void addArco(int weight, nodo *nodo1, nodo *nodo2)
+void sumWeights(int *weights, graph *g, int node)
 {
-    if (weight <= 0)
+    if (g->size <= node)
+        return;
+    edge *e = g->adj[node];
+    while (e != NULL)
     {
-        printf("Il peso dell'arco deve essere positivo");
+        weights[e->node] += e->weight;
+        e = e->next;
+    }
+}
+edge *newEdge(int node, int weight)
+{
+    edge *e = (edge *)malloc(sizeof(edge));
+    e->node = node;
+    e->weight = weight;
+    e->next = NULL;
+    return e;
+}
+
+graph *newEmptyGraph()
+{
+    graph *g = (graph *)malloc(sizeof(graph));
+    g->size = 0;
+    g->adj = NULL;
+    return g;
+}
+graph *newGraph(int size)
+{
+    graph *g = (graph *)malloc(sizeof(graph));
+    g->size = size;
+    g->adj = (edge **)malloc(size * sizeof(edge *));
+    for (int i = 0; i < size; i++)
+        g->adj[i] = NULL;
+    return g;
+}
+
+void printGraph(graph *g)
+{
+    if (g == NULL)
+    {
+        printf("\nEmpty Graph\n");
         return;
     }
-    if (nodo1 != NULL && nodo2 != NULL)
+
+    printf("\nGraph:\n");
+    for (int i = 0; i < g->size; i++)
     {
-        arco *tmp = nodo1->adj;
-        if (tmp != NULL)
+        edge *e = g->adj[i];
+        printf("%d: ", i);
+        while (e)
         {
-            if (tmp->pointer == nodo2)
-            {
-                printf("L'arco è già presente");
-                return;
-            }
-            while (tmp->next != NULL)
-                if (tmp->pointer == nodo2)
-                {
-                    printf("L'arco è già presente");
-                    return;
-                }
-                else
-                {
-                    tmp = tmp->next;
-                }
-            tmp->next = (arco *)malloc(sizeof(arco));
-            tmp = tmp->next;
-            tmp->pointer = nodo2;
-            tmp->weight = weight;
-            tmp->next = NULL;
-            return;
+            printf("--(%d)-->[%d]\t", e->weight, e->node);
+            e = e->next;
         }
-        tmp = (arco *)malloc(sizeof(arco));
-        tmp->pointer = nodo2;
-        tmp->weight = weight;
-        tmp->next = NULL;
+        printf("\n");
     }
 }
-void addNodo(grafo *g, int value)
+graph *newRandomGraph(int size)
 {
-    if (g != NULL)
+    graph *g = newGraph(size);
+    // nodes scrolling
+    for (int n = 0; n < size; n++)
     {
-        nodo *tmp = (nodo *)malloc(sizeof(nodo));
-        tmp->value = value;
-        nodoList *tmpList = (nodoList *)malloc(sizeof(nodoList));
-        tmpList->next = g->nodi;
-        g->nodi = tmpList;
-        tmpList->nodo = tmp;
-        g->nNodi++;
+        // edges scrolling
+        for (int p = 0; p < size; p++)
+        {
+            // randomly choosing whether to create a border
+            if (rand() % 2 == 0)
+            {
+                edge *e = newEdge(p, rand() % 10 + 1);
+                // head insert
+                e->next = g->adj[n];
+                g->adj[n] = e;
+            }
+        }
     }
+    return g;
 }
-void stampaGrafo(grafo *g)
+graph *graphUnion(graph *g1, graph *g2)
 {
-    printf("\nGrafo: ");
-    nodoList *tmp = g->nodi;
-    while (tmp != NULL)
+    int size;
+    if (g1->size > g2->size)
+        size = g1->size;
+    else
+        size = g2->size;
+
+    graph *g3 = newGraph(size);
+    int *weightSums = (int *)malloc(sizeof(int) * size);
+
+    //  nodes scrolling
+    for (int n = 0; n < size; n++)
     {
-        printf("%d ", tmp->nodo->value);
-        tmp = tmp->next;
+        resetIntVector(weightSums, size);
+        sumWeights(weightSums, g1, n);
+        sumWeights(weightSums, g2, n);
+        // edges scrolling
+        for (int p = 0; p < size; p++)
+        {
+            // if the edge exists
+            if (weightSums[p] != 0)
+            {
+
+                edge *e = newEdge(p, weightSums[p]);
+                // head insert
+                e->next = g3->adj[n];
+                g3->adj[n] = e;
+            }
+        }
     }
-    printf("\n");
+    free((void *)weightSums);
+    return g3;
 }
+
 int main()
 {
     srand(time(NULL));
-    grafo *g1 = (grafo *)malloc(sizeof(grafo));
-    g1->nNodi = 0;
-    printf("Inserici numero nodi di G1: ");
-    int nNodi;
-    scanf("%d", &nNodi);
-    for (int i = 0; i < nNodi; i++)
-    {
-        int value;
-        printf("\nInserici il valore del %d nodo: ", i + 1);
-        scanf("%d", &value);
-        addNodo(g1, value);
-    }
-    printf("G1 ");
-    stampaGrafo(g1);
-
-    grafo *g2 = (grafo *)malloc(sizeof(grafo));
-    g2->nNodi = 0;
-    printf("Inserici numero nodi di G2: ");
-    nNodi;
-    scanf("%d", &nNodi);
-    for (int i = 0; i < nNodi; i++)
-    {
-        int value;
-        printf("\nInserici il valore del %d nodo: ", i + 1);
-        scanf("%d", &value);
-        addNodo(g2, value);
-    }
-    printf("G2 ");
-    stampaGrafo(g2);
+    graph *g1 = newRandomGraph(5);
+    graph *g2 = newRandomGraph(2);
+    printGraph(g1);
+    printf("\n");
+    printGraph(g2);
+    printf("\n");
+    graph *g3 = graphUnion(g1, g2);
+    printGraph(g3);
 }
