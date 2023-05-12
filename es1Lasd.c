@@ -60,18 +60,18 @@ void printGraph(graph *g)
 {
     if (g == NULL)
     {
-        printf("\nEmpty Graph\n");
+        printf("\n\033[1;31mEmpty Graph\n");
         return;
     }
 
-    printf("\nGraph:\n");
+    printf("\n\033[1;31mGraph:\n");
     for (int i = 0; i < g->size; i++)
     {
         edge *e = g->adj[i];
-        printf("%d: ", i);
+        printf("\033[1;34m%d: ", i);
         while (e)
         {
-            printf("--(%d)-->[%d]\t", e->weight, e->node);
+            printf("\033[1;33m--(\033[1;37m%d\033[1;33m)-->[\033[1;37m%d\033[1;33m]\t", e->weight, e->node);
             e = e->next;
         }
         printf("\n");
