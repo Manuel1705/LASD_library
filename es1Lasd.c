@@ -5,7 +5,9 @@
 typedef struct nodo
 {
     int value;
+    struct arco *adj;
 } nodo;
+
 typedef struct nodoList
 {
     nodo *nodo;
@@ -32,47 +34,47 @@ nodo *newNodo(int value)
     tmp->value = value;
     return tmp;
 }
-// aggiunge un arco da nodo1 a nodo 2
-// void addArco(int weight, nodo *nodo1, nodo *nodo2)
-// {
-//     if (weight <= 0)
-//     {
-//         printf("Il peso dell'arco deve essere positivo");
-//         return;
-//     }
-//     if (nodo1 != NULL && nodo2 != NULL)
-//     {
-//         arco *tmp = nodo1->adj;
-//         if (tmp != NULL)
-//         {
-//             if (tmp->pointer == nodo2)
-//             {
-//                 printf("L'arco è già presente");
-//                 return;
-//             }
-//             while (tmp->next != NULL)
-//                 if (tmp->pointer == nodo2)
-//                 {
-//                     printf("L'arco è già presente");
-//                     return;
-//                 }
-//                 else
-//                 {
-//                     tmp = tmp->next;
-//                 }
-//             tmp->next = (arco *)malloc(sizeof(arco));
-//             tmp = tmp->next;
-//             tmp->pointer = nodo2;
-//             tmp->weight = weight;
-//             tmp->next = NULL;
-//             return;
-//         }
-//         tmp = (arco *)malloc(sizeof(arco));
-//         tmp->pointer = nodo2;
-//         tmp->weight = weight;
-//         tmp->next = NULL;
-//     }
-// }
+// aggiunge un arco da nodo1 a nodo2
+void addArco(int weight, nodo *nodo1, nodo *nodo2)
+{
+    if (weight <= 0)
+    {
+        printf("Il peso dell'arco deve essere positivo");
+        return;
+    }
+    if (nodo1 != NULL && nodo2 != NULL)
+    {
+        arco *tmp = nodo1->adj;
+        if (tmp != NULL)
+        {
+            if (tmp->pointer == nodo2)
+            {
+                printf("L'arco è già presente");
+                return;
+            }
+            while (tmp->next != NULL)
+                if (tmp->pointer == nodo2)
+                {
+                    printf("L'arco è già presente");
+                    return;
+                }
+                else
+                {
+                    tmp = tmp->next;
+                }
+            tmp->next = (arco *)malloc(sizeof(arco));
+            tmp = tmp->next;
+            tmp->pointer = nodo2;
+            tmp->weight = weight;
+            tmp->next = NULL;
+            return;
+        }
+        tmp = (arco *)malloc(sizeof(arco));
+        tmp->pointer = nodo2;
+        tmp->weight = weight;
+        tmp->next = NULL;
+    }
+}
 void addNodo(grafo *g, int value)
 {
     if (g != NULL)
@@ -83,6 +85,7 @@ void addNodo(grafo *g, int value)
         tmpList->next = g->nodi;
         g->nodi = tmpList;
         tmpList->nodo = tmp;
+        g->nNodi++;
     }
 }
 void stampaGrafo(grafo *g)
@@ -94,13 +97,14 @@ void stampaGrafo(grafo *g)
         printf("%d ", tmp->nodo->value);
         tmp = tmp->next;
     }
+    printf("\n");
 }
 int main()
 {
     srand(time(NULL));
-    grafo *g = (grafo *)malloc(sizeof(grafo));
-    g->nNodi = 0;
-    printf("Inserici numero nodi: ");
+    grafo *g1 = (grafo *)malloc(sizeof(grafo));
+    g1->nNodi = 0;
+    printf("Inserici numero nodi di G1: ");
     int nNodi;
     scanf("%d", &nNodi);
     for (int i = 0; i < nNodi; i++)
@@ -108,7 +112,23 @@ int main()
         int value;
         printf("\nInserici il valore del %d nodo: ", i + 1);
         scanf("%d", &value);
-        addNodo(g, value);
+        addNodo(g1, value);
     }
-    stampaGrafo(g);
+    printf("G1 ");
+    stampaGrafo(g1);
+
+    grafo *g2 = (grafo *)malloc(sizeof(grafo));
+    g2->nNodi = 0;
+    printf("Inserici numero nodi di G2: ");
+    nNodi;
+    scanf("%d", &nNodi);
+    for (int i = 0; i < nNodi; i++)
+    {
+        int value;
+        printf("\nInserici il valore del %d nodo: ", i + 1);
+        scanf("%d", &value);
+        addNodo(g2, value);
+    }
+    printf("G2 ");
+    stampaGrafo(g2);
 }
