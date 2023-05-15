@@ -30,6 +30,16 @@ void sumWeights(int *weights, graph *g, int node)
         e = e->next;
     }
 }
+void sumWeightsIntersection(int *weights1, int *weights2, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (weights1[i] != 0 && weights2[i] != 0 && ((weights1[i] + weights2[i]) % 2) == 0)
+            weights1[i] = weights1[i] + weights2[i];
+        else
+            weights1[i] = 0;
+    }
+}
 edge *newEdge(int node, int weight)
 {
     edge *e = (edge *)malloc(sizeof(edge));
@@ -89,7 +99,7 @@ graph *newRandomGraph(int size)
             // randomly choosing whether to create a border
             if (rand() % 2 == 0)
             {
-                edge *e = newEdge(p, rand() % 10 + 1);
+                edge *e = newEdge(p, rand() % 2 + 1);
                 // head insert
                 e->next = g->adj[n];
                 g->adj[n] = e;
@@ -132,16 +142,55 @@ graph *graphUnion(graph *g1, graph *g2)
     free((void *)weightSums);
     return g3;
 }
+graph *graphIntersection(graph *g1, graph *g2)
+{
+    int size;
+    if (g1->size > g2->size)
+        size = g1->size;
+    else
+        size = g2->size;
 
+    graph *g3 = newGraph(size);
+    int *weightSums1 = (int *)malloc(sizeof(int) * size);
+    int *weightSums2 = (int *)malloc(sizeof(int) * size);
+    //  nodes scrolling
+    for (int n = 0; n < size; n++)
+    {
+        resetIntVector(weightSums1, size);
+        resetIntVector(weightSums2, size);
+        sumWeights(weightSums1, g1, n);
+        sumWeights(weightSums2, g2, n);
+        sumWeightsIntersection(weightSums1, weightSums2, size);
+        // edges scrolling
+        for (int p = 0; p < size; p++)
+        {
+            // if the edge exists
+            if (weightSums1[p] != 0)
+            {
+
+                edge *e = newEdge(p, weightSums1[p]);
+                // head insert
+                e->next = g3->adj[n];
+                g3->adj[n] = e;
+            }
+        }
+    }
+    free((void *)weightSums1);
+    free((void *)weightSums2);
+    return g3;
+}
 int main()
 {
     srand(time(NULL));
-    graph *g1 = newRandomGraph(5);
-    graph *g2 = newRandomGraph(2);
+    graph *g1 = newRandomGraph(3);
+    graph *g2 = newRandomGraph(3);
     printGraph(g1);
     printf("\n");
     printGraph(g2);
-    printf("\n");
+    printf("\nUnion");
     graph *g3 = graphUnion(g1, g2);
     printGraph(g3);
+    printf("\nIntersection");
+    graph *g4 = graphIntersection(g1, g2);
+    printGraph(g4);
 }
